@@ -1,27 +1,28 @@
 #[macro_use]
 extern crate clap;
+extern crate rust_cli_starter;
 
 fn main() {
     let matches = clap_app!(app =>
-        (name: "Rust CLI starter")
-        (version: "0.1.0")
-        (author: "kkpoon <noopkk@gmail.com>")
-        (about: "command line tool starter")
-        (@arg INPUT: +required "some text")
-        (@subcommand upper =>
-            (about: "convert to upper case")
-        )
-        (@subcommand lower =>
-            (about: "convert to lower case")
-        )
+    (name: "github CLI")
+    (version: "0.1.0")
+    (author: "kkpoon <noopkk@gmail.com>")
+    (about: "Just for fun")
+    (@subcommand users =>
+      (about: "get a github user")
+      (@arg USERNAME: +required "github username")
     )
+  )
             .get_matches();
 
-    let input_text = matches.value_of("INPUT").unwrap();
+    if let Some(matches) = matches.subcommand_matches("users") {
+        let username = matches.value_of("USERNAME").unwrap();
+        let gh_user = rust_cli_starter::github::get_user(username);
 
-    if let Some(_) = matches.subcommand_matches("upper") {
-        println!("{}", input_text.to_uppercase());
-    } else if let Some(_) = matches.subcommand_matches("lower") {
-        println!("{}", input_text.to_lowercase());
+        match gh_user {
+            Ok(user) => println!("{}, {}", user.name, user.html_url),
+            Err(err) => println!("Error: {}", err),
+        }
     }
+
 }
